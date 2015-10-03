@@ -1,21 +1,18 @@
-
 package main
 
 import (
-    "fmt"
-    "cangallo"
+	"./cangallo"
+	"fmt"
 )
 
 func main() {
-    repo := Repo{Path: "."}
-    repo.Init()
+	repo := cangallo.Repo{Path: "."}
 
-    repo.AddImage("javi", Image{SHA1: "javi"})
+	repo.Init()
 
+	repo.AddImage("javi", cangallo.Image{SHA1: "javi"})
 
-    fmt.Printf("%+v\n", repo.Index)
+	fmt.Printf("%+v\n", repo.Index)
 
-    repo.Marshal()
+	repo.Marshal()
 }
-
-
