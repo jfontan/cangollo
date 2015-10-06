@@ -15,4 +15,7 @@ func main() {
 	fmt.Printf("%+v\n", repo.Index)
 
 	repo.Marshal()
+
+	qemu_img := cangallo.QemuImg{}
+	qemu_img.Execute()
 }
