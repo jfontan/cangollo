@@ -37,8 +37,6 @@ func (repo *Repo) LoadIndex(file_name string) {
 		log.Fatalf("Error reading file: %v", err)
 	}
 
-	fmt.Printf("%s", file)
-
 	err = yaml.Unmarshal(file, &repo.Index)
 
 	if err != nil {
