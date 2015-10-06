@@ -66,7 +66,7 @@ func (qemu_img *QemuImg) Info(file string) (info []QemuImgInfo, err error) {
 	text, err := qemu_img.Execute(params)
 
 	if err != nil {
-		log.Printf("Could get info from the image. qemu-img message:")
+		log.Printf("Could not get info from the image. qemu-img message:")
 		log.Printf(text)
 
 		return info, err
