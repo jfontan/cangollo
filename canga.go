@@ -1,9 +1,11 @@
 package main
 
 import (
-	//"fmt"
+	"fmt"
 	"github.com/codegangsta/cli"
+	"io/ioutil"
 	"os"
+	"os/exec"
 	//"strconv"
 	"github.com/k0kubun/pp"
 
@@ -24,8 +26,37 @@ func InfoCommand(c *cli.Context) {
 	qemuImg := cangallo.QemuImg{}
 	info, _ := qemuImg.Info(path)
 
-	//fmt.Printf("%+v\n", info)
 	pp.Print(info)
+}
+
+func AddCommand(c *cli.Context) {
+	repo := cangallo.Repo{}
+	repo.Init()
+
+	file, err := ioutil.TempFile("/tmp", "canga-")
+	if err != nil {
+		fmt.Printf("Can not create tempfile: %v\n", err)
+	}
+
+	file.Write([]byte(cangallo.BasicImageText))
+
+	file_name := file.Name()
+	file.Close()
+
+	cmd := exec.Command("/usr/bin/vim", file_name)
+	cmd.Stdin = os.Stdin
+	cmd.Stdout = os.Stdout
+
+	err = cmd.Run()
+
+	pp.Print(err)
+}
+
+func ListCommand(c *cli.Context) {
+	repo := cangallo.Repo{}
+	repo.Init()
+
+	pp.Print(repo)
 }
 
 var Commands = []cli.Command{
@@ -67,6 +98,22 @@ var Commands = []cli.Command{
 				Usage: "path of the parent image",
 			},
 		},
+	},
+	{
+		Name:   "add",
+		Usage:  "add a new image to the repository",
+		Action: AddCommand,
+		Flags: []cli.Flag{
+			cli.StringFlag{
+				Name:  "parent,p",
+				Usage: "path of the parent image",
+			},
+		},
+	},
+	{
+		Name:   "list",
+		Usage:  "list images in the repository",
+		Action: ListCommand,
 	},
 }
 

@@ -30,6 +30,12 @@ type Repo struct {
 	Path  string
 }
 
+var BasicImageText string = `
+name: ""
+description: ""
+parent: ""
+`
+
 func (repo *Repo) LoadIndex(file_name string) {
 	file, err := ioutil.ReadFile(file_name)
 
