@@ -50,16 +50,36 @@ func (repo *Repo) LoadIndex(file_name string) {
 	}
 }
 
-func (repo *Repo) Init() {
-	var file_name = ""
+func (repo *Repo) WriteIndex(file_name string) {
+	text, err := yaml.Marshal(&repo.Index)
 
+	if err != nil {
+		log.Fatalf("Error generating yaml: %v", err)
+	}
+
+	err = ioutil.WriteFile(file_name, text, 0644)
+
+	if err != nil {
+		log.Fatalf("Error writing file: %v", err)
+	}
+}
+
+func (repo *Repo) SaveIndex() {
+	repo.WriteIndex(repo.IndexPath())
+}
+
+func (repo *Repo) IndexPath() (file_name string) {
 	if repo.Path != "" {
 		file_name = fmt.Sprintf("%v/index.yaml", repo.Path)
 	} else {
 		file_name = "index.yaml"
 	}
 
-	repo.LoadIndex(file_name)
+	return file_name
+}
+
+func (repo *Repo) Init() {
+	repo.LoadIndex(repo.IndexPath())
 }
 
 func (repo *Repo) AddImage(name string, image Image) {

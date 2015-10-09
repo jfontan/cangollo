@@ -3,6 +3,7 @@ package main
 import (
 	"fmt"
 	"github.com/codegangsta/cli"
+	"gopkg.in/yaml.v2"
 	"io/ioutil"
 	"os"
 	"os/exec"
@@ -36,6 +37,7 @@ func AddCommand(c *cli.Context) {
 	file, err := ioutil.TempFile("/tmp", "canga-")
 	if err != nil {
 		fmt.Printf("Can not create tempfile: %v\n", err)
+		os.Exit(-1)
 	}
 
 	file.Write([]byte(cangallo.BasicImageText))
@@ -48,8 +50,32 @@ func AddCommand(c *cli.Context) {
 	cmd.Stdout = os.Stdout
 
 	err = cmd.Run()
+	if err != nil {
+		fmt.Printf("Error editing file: %v\n", err)
+		os.Exit(-1)
+	}
 
-	pp.Print(err)
+	text, err := ioutil.ReadFile(file_name)
+	if err != nil {
+		fmt.Printf("Error reading file: %v\n", err)
+		os.Exit(-1)
+	}
+
+	image := cangallo.Image{}
+
+	err = yaml.Unmarshal(text, &image)
+	if err != nil {
+		fmt.Printf("Error parsing yaml: %v\n", err)
+		os.Exit(-1)
+	}
+
+	pp.Print(image)
+
+	repo.AddImage("test", image)
+
+	pp.Print(repo.Index)
+
+	repo.SaveIndex()
 }
 
 func ListCommand(c *cli.Context) {
