@@ -2,16 +2,22 @@ package main
 
 import (
 	"fmt"
-	"github.com/codegangsta/cli"
-	"gopkg.in/yaml.v2"
 	"io/ioutil"
 	"os"
-	"os/exec"
-	//"strconv"
+
+	"github.com/codegangsta/cli"
 	"github.com/k0kubun/pp"
+	"gopkg.in/yaml.v2"
 
 	"./cangallo"
 )
+
+func GenericError(err error) {
+	if err != nil {
+		fmt.Printf("Error: %v\n", err)
+		os.Exit(-1)
+	}
+}
 
 func CreateCommand(c *cli.Context) {
 	path := c.Args()[0]
@@ -45,25 +51,12 @@ func AddCommand(c *cli.Context) {
 	file_name := file.Name()
 	file.Close()
 
-	cmd := exec.Command("/usr/bin/vim", file_name)
-	cmd.Stdin = os.Stdin
-	cmd.Stdout = os.Stdout
-
-	err = cmd.Run()
-	if err != nil {
-		fmt.Printf("Error editing file: %v\n", err)
-		os.Exit(-1)
-	}
-
-	text, err := ioutil.ReadFile(file_name)
-	if err != nil {
-		fmt.Printf("Error reading file: %v\n", err)
-		os.Exit(-1)
-	}
+	data, err := cangallo.OpenEditor(file_name)
+	GenericError(err)
 
 	image := cangallo.Image{}
 
-	err = yaml.Unmarshal(text, &image)
+	err = yaml.Unmarshal(data, &image)
 	if err != nil {
 		fmt.Printf("Error parsing yaml: %v\n", err)
 		os.Exit(-1)
