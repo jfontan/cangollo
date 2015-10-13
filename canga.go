@@ -37,6 +37,14 @@ func InfoCommand(c *cli.Context) {
 }
 
 func AddCommand(c *cli.Context) {
+	image_file := c.Args()[0]
+
+	sha1, err := cangallo.CalculateSHA1(image_file)
+	if err != nil {
+		fmt.Printf("Error calculating SHA1: %v\n", err)
+		os.Exit(-1)
+	}
+
 	repo := cangallo.Repo{}
 	repo.Init()
 
@@ -62,6 +70,8 @@ func AddCommand(c *cli.Context) {
 		os.Exit(-1)
 	}
 
+	image.SHA1 = sha1
+
 	pp.Print(image)
 
 	repo.AddImage("test", image)
@@ -69,6 +79,7 @@ func AddCommand(c *cli.Context) {
 	pp.Print(repo.Index)
 
 	repo.SaveIndex()
+
 }
 
 func ListCommand(c *cli.Context) {
