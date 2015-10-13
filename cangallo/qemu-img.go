@@ -76,3 +76,18 @@ func (qemu_img *QemuImg) Info(file string) (info []QemuImgInfo, err error) {
 
 	return info, err
 }
+
+func (qemu_img *QemuImg) Clone(in_file, out_file string) (err error) {
+	params := []string{"convert", "-c", "-O", "qcow2", in_file, out_file}
+
+	text, err := qemu_img.Execute(params)
+
+	if err != nil {
+		log.Printf("Could not get convert image. qemu-img message:")
+		log.Printf(text)
+
+		return err
+	}
+
+	return err
+}

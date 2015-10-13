@@ -4,6 +4,7 @@ import (
 	"fmt"
 	"io/ioutil"
 	"os"
+	"time"
 
 	"github.com/codegangsta/cli"
 	"github.com/k0kubun/pp"
@@ -39,12 +40,6 @@ func InfoCommand(c *cli.Context) {
 func AddCommand(c *cli.Context) {
 	image_file := c.Args()[0]
 
-	sha1, err := cangallo.CalculateSHA1(image_file)
-	if err != nil {
-		fmt.Printf("Error calculating SHA1: %v\n", err)
-		os.Exit(-1)
-	}
-
 	repo := cangallo.Repo{}
 	repo.Init()
 
@@ -70,16 +65,41 @@ func AddCommand(c *cli.Context) {
 		os.Exit(-1)
 	}
 
+	temp_image_file, err := ioutil.TempFile(".", "canga-")
+	if err != nil {
+		fmt.Printf("Can not create tempfile: %v\n", err)
+		os.Exit(-1)
+	}
+
+	temp_file_name := temp_image_file.Name()
+	temp_image_file.Close()
+
+	qemuImg := cangallo.QemuImg{}
+	qemuImg.Clone(image_file, temp_file_name)
+
+	sha1, err := cangallo.CalculateSHA1(temp_file_name)
+	if err != nil {
+		fmt.Printf("Error calculating SHA1: %v\n", err)
+		os.Exit(-1)
+	}
+
+	dest_file_name := fmt.Sprintf("%s.qcow2", sha1)
+	os.Rename(temp_file_name, dest_file_name)
+
+	info, err := qemuImg.Info(dest_file_name)
+
 	image.SHA1 = sha1
+	image.TotalSize = info[0].ActualSize
+	image.Size = info[0].VirtualSize
+	image.Time = time.Now()
 
 	pp.Print(image)
 
-	repo.AddImage("test", image)
+	repo.AddImage(sha1, image)
 
 	pp.Print(repo.Index)
 
 	repo.SaveIndex()
-
 }
 
 func ListCommand(c *cli.Context) {
