@@ -83,7 +83,22 @@ func (qemu_img *QemuImg) Clone(in_file, out_file string) (err error) {
 	text, err := qemu_img.Execute(params)
 
 	if err != nil {
-		log.Printf("Could not get convert image. qemu-img message:")
+		log.Printf("Could not clone image. qemu-img message:")
+		log.Printf(text)
+
+		return err
+	}
+
+	return err
+}
+
+func (qemu_img *QemuIMg) ChangeParent(file, parent string) (err error) {
+	params := []string{"rebase", "-u", "-b", parent, file}
+
+	text, err := qemu_img.Execute(params)
+
+	if err != nil {
+		log.Printf("Could not rebase the image. qemu-img message:")
 		log.Printf(text)
 
 		return err
